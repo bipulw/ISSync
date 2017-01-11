@@ -4,7 +4,7 @@ A crud based Model sync library for Go
 
 Installation
 ============
-go get github.com/bipulw/ISSync-go
+$ go get github.com/bipulw/ISSync-go
 
 Usage
 =====
