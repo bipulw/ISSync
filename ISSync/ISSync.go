@@ -4,16 +4,16 @@
 package ISSync
 
 import (
-  "fmt"
+        "fmt"
 	"encoding/json"
 	"net/http"
 	"io/ioutil"
 )
 
 type ISSyncBaseResponse struct{
-	Error bool 	 `json:"error"`
+	Error bool	 `json:"error"`
 	Error_msg string `json:"error_msg,omitempty"`
-	Data string 	 `json:"data,omitempty"`
+	Data string	 `json:"data,omitempty"`
 }
 
 type ISSyncRequest struct{
@@ -23,43 +23,36 @@ type ISSyncRequest struct{
 }
 
 type ISSyncModelInterface interface{
-	createResponseObj() ISSyncModelInterface
-	updateResponseObj() ISSyncModelInterface
-	deleteResponseObj() ISSyncModelInterface
-	readResponseObj()   ISSyncModelInterface
-	create() bool
-	delete() bool
-	update() bool
-	read() bool
+	CreateResponseObj() ISSyncModelInterface
+	UpdateResponseObj() ISSyncModelInterface
+	DeleteResponseObj() ISSyncModelInterface
+	ReadResponseObj()   ISSyncModelInterface
+	Create() bool
+	Delete() bool
+	Update() bool
+	Read() bool
 }
+type ISSyncModelGenerator func (ISSyncRequest) ISSyncModelInterface
 
-func (self User) print(){
-	fmt.Println("Name       :",self.Name);
-	fmt.Println("Age        :",self.Age);
-	fmt.Println("Updated at :",self.Updated_at);
-}
+//func (self User) print(){
+//	fmt.Println("Name       :",self.Name);
+//	fmt.Println("Age        :",self.Age);
+//	fmt.Println("Updated at :",self.Updated_at);
+//}
 
 // add all the model you want to support
-func generateObject(req ISSyncRequest) (ISSyncModelInterface){
+var generateObject ISSyncModelGenerator
 
-	//example usage
-	if req.ModelID == "user"{
-		var usrHoldr User
-		jsonInBytes := []byte(req.Data)
-		if err := json.Unmarshal(jsonInBytes, &usrHoldr); err != nil {
-        		return nil
-    		}
-		return usrHoldr
-	}
-	return nil
+func SetObjectGenerator(req ISSyncModelGenerator){
+	generateObject = req
 }
 
 func create(obj ISSyncModelInterface) ISSyncBaseResponse{
-	error := obj.create()
+	error := obj.Create()
 	var response ISSyncBaseResponse
 	if !error{
 		response.Error = false
-		response.Data = getJson(obj.createResponseObj())
+		response.Data = getJson(obj.CreateResponseObj())
 	}else{
 		response.Error = true
 		response.Error_msg = "Error Creating"
@@ -69,11 +62,11 @@ func create(obj ISSyncModelInterface) ISSyncBaseResponse{
 }
 
 func update(obj ISSyncModelInterface) ISSyncBaseResponse{
-	error := obj.update()
+	error := obj.Update()
 	var response ISSyncBaseResponse
 	if !error{
 		response.Error = false
-		response.Data = getJson(obj.updateResponseObj())
+		response.Data = getJson(obj.UpdateResponseObj())
 	}else{
 		response.Error = true
 		response.Error_msg = "Error Updating"
@@ -83,11 +76,11 @@ func update(obj ISSyncModelInterface) ISSyncBaseResponse{
 }
 
 func delete(obj ISSyncModelInterface) ISSyncBaseResponse{
-	error := obj.delete()
+	error := obj.Delete()
 	var response ISSyncBaseResponse
 	if !error{
 		response.Error = false
-		response.Data = getJson(obj.deleteResponseObj())
+		response.Data = getJson(obj.DeleteResponseObj())
 	}else{
 		response.Error = true
 		response.Error_msg = "Error Updating"
@@ -96,11 +89,11 @@ func delete(obj ISSyncModelInterface) ISSyncBaseResponse{
 }
 
 func read(obj ISSyncModelInterface) ISSyncBaseResponse{
-	error := obj.read()
+	error := obj.Read()
 	var response ISSyncBaseResponse
 	if !error{
 		response.Error = false
-		response.Data = getJson(obj.readResponseObj())
+		response.Data = getJson(obj.ReadResponseObj())
 	}else{
 		response.Error = true
 		response.Error_msg = "Error Reading"
@@ -118,7 +111,7 @@ func getJson(obj interface{}) string{
 	return(string(jsonResult))
 }
 
-func processRequest(w http.ResponseWriter, r *http.Request){
+func ProcessRequest(w http.ResponseWriter, r *http.Request){
 	var parsed ISSyncRequest
 	var response ISSyncBaseResponse
 
