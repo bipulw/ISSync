@@ -4,7 +4,7 @@
 package main
 
 import(
-  "github.com/bipulw/Issync-go/ISSync"
+  "github.com/bipulw/ISSync/ISSync"
   "fmt"
   "encoding/json"
   "net/http"
